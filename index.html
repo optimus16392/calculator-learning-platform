@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Learning Platform</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Theme Variables */
+        :root {
+            /* Light Theme */
+            --bg-color: #f5f7fa;
+            --card-bg: white;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            --bg-color: #1a202c;
+            --card-bg: #2d3748;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #4a5568;
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+            --success: #38a169;
+            --danger: #c53030;
+            --warning: #c05621;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ocean Theme */
+        body.ocean-theme {
+            --bg-color: #e0f2f1;
+            --card-bg: #ffffff;
+            --text-primary: #00695c;
+            --text-secondary: #00897b;
+            --border-color: #80deea;
+            --accent-primary: #00897b;
+            --accent-secondary: #004d40;
+            --success: #26a69a;
+            --danger: #00796b;
+            --warning: #0097a7;
+            --shadow: 0 10px 30px rgba(0, 137, 123, 0.2);
+        }
+
+        /* Forest Theme */
+        body.forest-theme {
+            --bg-color: #e8f5e9;
+            --card-bg: #ffffff;
+            --text-primary: #1b5e20;
+            --text-secondary: #33691e;
+            --border-color: #a5d6a7;
+            --accent-primary: #388e3c;
+            --accent-secondary: #1b5e20;
+            --success: #7cb342;
+            --danger: #558b2f;
+            --warning: #689f38;
+            --shadow: 0 10px 30px rgba(27, 94, 32, 0.2);
+        }
+
+        /* Sunset Theme */
+        body.sunset-theme {
+            --bg-color: #fff3e0;
+            --card-bg: #ffffff;
+            --text-primary: #e65100;
+            --text-secondary: #bf360c;
+            --border-color: #ffb74d;
+            --accent-primary: #ff6f00;
+            --accent-secondary: #e65100;
+            --success: #ff5722;
+            --danger: #ff6f00;
+            --warning: #ffb74d;
+            --shadow: 0 10px 30px rgba(230, 81, 0, 0.2);
+        }
+
+        /* Purple Theme */
+        body.purple-theme {
+            --bg-color: #f3e5f5;
+            --card-bg: #ffffff;
+            --text-primary: #4a148c;
+            --text-secondary: #6a1b9a;
+            --border-color: #ce93d8;
+            --accent-primary: #7b1fa2;
+            --accent-secondary: #4a148c;
+            --success: #8e24aa;
+            --danger: #6a1b9a;
+            --warning: #ab47bc;
+            --shadow: 0 10px 30px rgba(74, 20, 140, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .auth-screen.hidden {
+            display: none;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: var(--border-color);
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .toggle-form a {
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Main Container */
+        .container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container.visible {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--accent-primary);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-selector {
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Content Area */
+        .content {
+            margin-top: 80px;
+        }
+
+        /* Calculator */
+        .calculator-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .calculator-section h2 {
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .display {
+            background: var(--text-primary);
+            color: var(--accent-primary);
+            font-size: 32px;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: right;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button.calc-btn {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        button.calc-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        button.calc-btn:active {
+            transform: scale(0.98);
+        }
+
+        button.calc-btn.operator {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        button.calc-btn.equals {
+            background: var(--success);
+            color: white;
+            grid-column: span 2;
+        }
+
+        button.calc-btn.clear {
+            background: var(--danger);
+            color: white;
+            grid-column: span 2;
+        }
+
+        /* Learning Section */
+        .learning-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .learning-section h2 {
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .question-card {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .answer-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .answer-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .answer-input input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .answer-input button {
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .answer-input button:hover {
+            opacity: 0.9;
+        }
+
+        .feedback {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: rgba(72, 187, 120, 0.2);
+            color: var(--success);
+        }
+
+        .feedback.incorrect {
+            background: rgba(245, 101, 101, 0.2);
+            color: var(--danger);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin-top: 5px;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 1024px) {
+            .container.visible {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <h1 id="authTitle">Login</h1>
+            <form class="auth-form" id="authForm" onsubmit="handleAuth(event)">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <div id="nameField" style="display: none;">
+                    <input type="text" id="name" placeholder="Full Name">
+                </div>
+                <div id="authError" class="error-message"></div>
+                <div class="auth-buttons">
+                    <button type="submit" class="btn btn-primary" id="authBtn">Login</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleAuthMode()">Sign Up</button>
+                </div>
+            </form>
+            <div class="toggle-form">
+                <span id="toggleText">Don't have an account?</span>
+                <a onclick="toggleAuthMode()">Click here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Calculator Learning Platform</h1>
+            <div class="header-controls">
+                <select class="theme-selector" onchange="changeTheme(this.value)">
+                    <option value="light">Light Theme</option>
+                    <option value="dark">Dark Theme</option>
+                    <option value="ocean">Ocean Theme</option>
+                    <option value="forest">Forest Theme</option>
+                    <option value="sunset">Sunset Theme</option>
+                    <option value="purple">Purple Theme</option>
+                </select>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="calculator-section">
+                <h2>🧮 Calculator</h2>
+                <div class="display" id="display">0</div>
+                <div class="buttons">
+                    <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+                    <button class="calc-btn operator" onclick="appendOperator('/')">÷</button>
+                    <button class="calc-btn operator" onclick="appendOperator('*')">×</button>
+                    <button class="calc-btn operator" onclick="deleteLast()">⌫</button>
+
+                    <button class="calc-btn" onclick="appendNumber('7')">7</button>
+                    <button class="calc-btn" onclick="appendNumber('8')">8</button>
+                    <button class="calc-btn" onclick="appendNumber('9')">9</button>
+                    <button class="calc-btn operator" onclick="appendOperator('-')">−</button>
+
+                    <button class="calc-btn" onclick="appendNumber('4')">4</button>
+                    <button class="calc-btn" onclick="appendNumber('5')">5</button>
+                    <button class="calc-btn" onclick="appendNumber('6')">6</button>
+                    <button class="calc-btn operator" onclick="appendOperator('+')">+</button>
+
+                    <button class="calc-btn" onclick="appendNumber('1')">1</button>
+                    <button class="calc-btn" onclick="appendNumber('2')">2</button>
+                    <button class="calc-btn" onclick="appendNumber('3')">3</button>
+                    <button class="calc-btn" onclick="appendNumber('.')">.</button>
+
+                    <button class="calc-btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                    <button class="calc-btn equals" onclick="calculate()" style="grid-column: span 2;">=</button>
+                </div>
+            </div>
+
+            <div class="learning-section">
+                <h2>🎯 Math Learning</h2>
+                
+                <div class="difficulty-selector">
+                    <button class="difficulty-btn active" onclick="setDifficulty('easy')">Easy</button>
+                    <button class="difficulty-btn" onclick="setDifficulty('medium')">Medium</button>
+                    <button class="difficulty-btn" onclick="setDifficulty('hard')">Hard</button>
+                </div>
+
+                <div id="questionContainer" class="question-card">
+                    <div class="loading">Loading question...</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Correct</div>
+                        <div class="stat-value" id="correctCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="totalCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzM7X-4JW_5pZ_4kL9nM_3oP_5qR_6sT",
+            authDomain: "calculator-learning-app.firebaseapp.com",
+            projectId: "calculator-learning-app",
+            storageBucket: "calculator-learning-app.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+
+        // Initialize Firebase
+        let app, auth, db;
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } catch (error) {
+            console.log("Firebase not available - using local storage instead");
+        }
+
+        // Auth State
+        let isSignUp = false;
+        let currentUser = null;
+
+        // Calculator State
+        let currentInput = '0';
+        let operator = null;
+        let previousValue = null;
+        let shouldResetDisplay = false;
+
+        // Learning State
+        let currentDifficulty = 'easy';
+        let currentQuestion = null;
+        let stats = { correct: 0, total: 0 };
+
+        // Question Bank
+        const questionBank = {
+            easy: [
+                { question: "What is 2 + 3?", answer: 5 },
+                { question: "What is 10 - 5?", answer: 5 },
+                { question: "What is 3 × 2?", answer: 6 },
+                { question: "What is 8 ÷ 2?", answer: 4 },
+                { question: "What is 5 + 5?", answer: 10 },
+                { question: "What is 12 - 3?", answer: 9 },
+                { question: "What is 4 × 5?", answer: 20 },
+                { question: "What is 15 ÷ 3?", answer: 5 },
+                { question: "What is 7 + 2?", answer: 9 },
+                { question: "What is 20 - 8?", answer: 12 }
+            ],
+            medium: [
+                { question: "What is 25 + 17?", answer: 42 },
+                { question: "What is 100 - 37?", answer: 63 },
+                { question: "What is 12 × 7?", answer: 84 },
+                { question: "What is 144 ÷ 12?", answer: 12 },
+                { question: "What is 50 + 25?", answer: 75 },
+                { question: "What is 99 - 44?", answer: 55 },
+                { question: "What is 15 × 8?", answer: 120 },
+                { question: "What is 96 ÷ 8?", answer: 12 },
+                { question: "What is 33 + 27?", answer: 60 },
+                { question: "What is 80 - 23?", answer: 57 }
+            ],
+            hard: [
+                { question: "What is 234 + 567?", answer: 801 },
+                { question: "What is 1000 - 378?", answer: 622 },
+                { question: "What is 23 × 17?", answer: 391 },
+                { question: "What is 256 ÷ 16?", answer: 16 },
+                { question: "What is 456 + 234?", answer: 690 },
+                { question: "What is 999 - 234?", answer: 765 },
+                { question: "What is 42 × 23?", answer: 966 },
+                { question: "What is 512 ÷ 32?", answer: 16 },
+                { question: "What is 789 + 211?", answer: 1000 },
+                { question: "What is 1500 - 672?", answer: 828 }
+            ]
+        };
+
+        // Initialize
+        function init() {
+            checkAuthState();
+            loadTheme();
+        }
+
+        // Auth Functions
+        function checkAuthState() {
+            if (auth) {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        currentUser = user;
+                        showMainApp();
+                        loadUserStats();
+                    } else {
+                        showAuthScreen();
+                    }
+                });
+            } else {
+                // Local storage fallback
+                const savedUser = localStorage.getItem('user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    showMainApp();
+                    loadLocalStats();
+                } else {
+                    showAuthScreen();
+                }
+            }
+        }
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            const authTitle = document.getElementById('authTitle');
+            const authBtn = document.getElementById('authBtn');
+            const nameField = document.getElementById('nameField');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (isSignUp) {
+                authTitle.textContent = 'Sign Up';
+                authBtn.textContent = 'Create Account';
+                nameField.style.display = 'block';
+                toggleText.textContent = 'Already have an account?';
+            } else {
+                authTitle.textContent = 'Login';
+                authBtn.textContent = 'Login';
+                nameField.style.display = 'none';
+                toggleText.textContent = "Don't have an account?";
+            }
+            document.getElementById('authError').textContent = '';
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            const errorDiv = document.getElementById('authError');
+
+            if (auth) {
+                if (isSignUp) {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            return userCredential.user.updateProfile({ displayName: name || email });
+                        })
+                        .then(() => {
+                            errorDiv.textContent = '';
+                        })
+                        .catch((error) => {
+                            errorDiv.textContent = error.message;
+                        });
+                } else {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .catch((error) => {
+                            errorDiv.textContent = error.message;
+                        });
+                }
+            } else {
+                // Local storage fallback
+                const user = { email, name: name || email, uid: Date.now().toString() };
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('stats_' + user.uid, JSON.stringify({ correct: 0, total: 0 }));
+                currentUser = user;
+                showMainApp();
+            }
+        }
+
+        function logout() {
+            if (auth) {
+                auth.signOut();
+            } else {
+                localStorage.removeItem('user');
+                currentUser = null;
+            }
+            showAuthScreen();
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('mainContainer').classList.remove('visible');
+            isSignUp = false;
+            toggleAuthMode();
+        }
+
+        function showMainApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainContainer').classList.add('visible');
+            document.getElementById('userEmail').textContent = currentUser.email || currentUser.displayName;
+        }
+
+        // Calculator Functions
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentInput;
+        }
+
+        function appendNumber(num) {
+            if (shouldResetDisplay) {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (num === '.' && currentInput.includes('.')) return;
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (previousValue === null) {
+                previousValue = parseFloat(currentInput);
+            } else if (!shouldResetDisplay) {
+                calculate();
+            }
+            operator = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (operator === null || previousValue === null) return;
+            let result;
+            const current = parseFloat(currentInput);
+            switch (operator) {
+                case '+': result = previousValue + current; break;
+                case '-': result = previousValue - current; break;
+                case '*': result = previousValue * current; break;
+                case '/': result = previousValue / current; break;
+                default: return;
+            }
+            currentInput = result.toString();
+            operator = null;
+            previousValue = null;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            previousValue = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Learning Functions
+        function setDifficulty(level) {
+            currentDifficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            const questions = questionBank[currentDifficulty];
+            currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="question-text">${currentQuestion.question}</div>
+                <div class="answer-input">
+                    <input type="number" id="answerInput" placeholder="Enter your answer" autofocus>
+                    <button onclick="checkAnswer()">Submit</button>
+                </div>
+                <div id="feedbackDiv"></div>
+            `;
+            document.getElementById('answerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkAnswer();
+            });
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const feedbackDiv = document.getElementById('feedbackDiv');
+            const isCorrect = userAnswer === currentQuestion.answer;
+
+            stats.total++;
+            if (isCorrect) stats.correct++;
+
+            saveStats();
+            updateStatsDisplay();
+
+            feedbackDiv.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+            feedbackDiv.textContent = isCorrect 
+                ? '✓ Correct!' 
+                : `✗ Incorrect! The answer is ${currentQuestion.answer}`;
+
+            setTimeout(generateQuestion, 2000);
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('correctCount').textContent = stats.correct;
+            document.getElementById('totalCount').textContent = stats.total;
+        }
+
+        // Theme Functions
+        function changeTheme(theme) {
+            document.body.className = '';
+            if (theme !== 'light') {
+                document.body.classList.add(theme + '-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function loadTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const selector = document.querySelector('.theme-selector');
+            if (selector) {
+                selector.value = theme;
+                changeTheme(theme);
+            }
+        }
+
+        // Stats Functions
+        function saveStats() {
+            if (auth && currentUser) {
+                db.collection('users').doc(currentUser.uid).set({
+                    email: currentUser.email,
+                    stats: stats,
+                    updatedAt: new Date()
+                }, { merge: true }).catch(err => console.log('Firestore unavailable'));
+            } else if (currentUser) {
+                localStorage.setItem('stats_' + currentUser.uid, JSON.stringify(stats));
+            }
+        }
+
+        function loadUserStats() {
+            if (auth && currentUser && db) {
+                db.collection('users').doc(currentUser.uid).get()
+                    .then((doc) => {
+                        if (doc.exists && doc.data().stats) {
+                            stats = doc.data().stats;
+                            updateStatsDisplay();
+                        } else {
+                            generateQuestion();
+                        }
+                    })
+                    .catch(err => {
+                        console.log('Loading from local');
+                        loadLocalStats();
+                    });
+            } else {
+                loadLocalStats();
+            }
+        }
+
+        function loadLocalStats() {
+            const saved = localStorage.getItem('stats_' + currentUser.uid);
+            if (saved) {
+                stats = JSON.parse(saved);
+                updateStatsDisplay();
+            }
+            generateQuestion();
+        }
+
+        // Start App
+        init();
+    </script>
+</body>
+</html>
