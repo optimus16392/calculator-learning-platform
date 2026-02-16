@@ -5,69 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator Learning Platform</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <style>
+        /* Add basic styles */
+        body {
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s;
+        }
+        /* Theme styles */
+        .light { background-color: white; color: black; }
+        .dark { background-color: #121212; color: white; }
+        .ocean { background-color: #0099cc; color: white; }
+        .forest { background-color: #3b703a; color: white; }
+        .sunset { background-color: #ff4500; color: white; }
+        .purple { background-color: #6a0dad; color: white; }
+        .cyberpunk { background-color: #00ffcc; color: black; }
+        .mint { background-color: #98ff98; color: black; }
+        .rose-gold { background-color: #b76e79; color: white; }
+        .lavender { background-color: #e6e6fa; color: black; }
+    </style>
 </head>
-<body>
+<body class="light">
     <header>
         <h1>Calculator Learning Platform</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#achievements">Achievements</a></li>
-                <li><a href="#about">About</a></li>
-            </ul>
-        </nav>
+        <button id="theme-toggle">Toggle Theme</button>
     </header>
     <main>
-        <section id="calculator">
-            <h2>Calculator</h2>
-            <input type="text" id="input" aria-label="Calculator input" placeholder="Enter calculation here..." />
-            <button onclick="calculate()" aria-label="Calculate">Calculate</button>
-            <div id="result" aria-live="polite"></div>
-            <div id="error-message" role="alert" aria-live="assertive"></div>
+        <section id="questions">
+            <h2>Math Questions</h2>
+            <div id="question-container"></div>
+            <button id="next-question">Next Question</button>
         </section>
-        <section id="achievements">
-            <h2>Your Achievements</h2>
-            <ul id="achievement-list"></ul>
+        <section id="leaderboard">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboard-list"></ul>
         </section>
-        <section id="accuracy">
-            <h2>Accuracy Percentage</h2>
-            <p id="accuracy-percentage">Your accuracy: <span>0%</span></p>
+        <section id="signup">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <input type="text" id="username" placeholder="Username" required />
+                <input type="email" id="email" placeholder="Email" required />
+                <input type="password" id="password" placeholder="Password" required />
+                <button type="submit">Sign Up</button>
+            </form>
         </section>
     </main>
     <footer>
-        <p>&copy; 2026 Calculator Learning Platform. All rights reserved.</p>
+        <p>&copy; 2026 Calculator Learning Platform</p>
     </footer>
     <script>
-        let totalAttempts = 0;
-        let correctAnswers = 0;
+        // Firebase configuration
+        const firebaseConfig = { /* Your Firebase Config Here */ };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        function calculate() {
-            const input = document.getElementById('input').value;
-            totalAttempts++;
-            try {
-                const result = eval(input);
-                document.getElementById('result').innerText = `Result: ${result}`;
-                correctAnswers++;
-                showAchievement();
-                updateAccuracy();
-            } catch (error) {
-                document.getElementById('error-message').innerText = 'Invalid calculation. Please try again.';
-                setTimeout(() => document.getElementById('error-message').innerText = '', 5000);
-            }
-        }
+        // Theme toggle functionality
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const body = document.body;
+            body.classList.toggle('dark');
+            body.classList.toggle('light');
+        });
 
-        function updateAccuracy() {
-            const accuracy = ((correctAnswers / totalAttempts) * 100).toFixed(2);
-            document.getElementById('accuracy-percentage').querySelector('span').innerText = `${accuracy}%`;
-        }
-
-        function showAchievement() {
-            const achievementList = document.getElementById('achievement-list');
-            const achievementItem = document.createElement('li');
-            achievementItem.innerText = `You achieved a new milestone! Total attempts: ${totalAttempts}`;
-            achievementList.appendChild(achievementItem);
-        }
+        // ...Additional JavaScript for handling questions, leaderboard, and user authentication
     </script>
 </body>
 </html>
