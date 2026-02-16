@@ -4,45 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator Learning Platform</title>
-    <style>
-        /* Basic styles and themes */
-        body { font-family: Arial, sans-serif; transition: background-color 0.5s; }
-        .light-theme { background-color: #ffffff; color: #000000; }
-        .dark-theme { background-color: #1e1e1e; color: #ffffff; }
-        /* Add additional themes here */
-    </style>
-</head>
-<body class="light-theme">  
-    <header><h1>Calculator Learning Platform</h1></header>
-    <section>
-        <h2>Select a Theme</h2>
-        <button onclick="setTheme('light')">Light</button>
-        <button onclick="setTheme('dark')">Dark</button>
-        <button onclick="setTheme('ocean')">Ocean</button>
-        <button onclick="setTheme('forest')">Forest</button>
-        <button onclick="setTheme('sunset')">Sunset</button>
-        <button onclick="setTheme('purple')">Purple</button>
-        <button onclick="setTheme('cyberpunk')">Cyberpunk</button>
-        <button onclick="setTheme('mint')">Mint</button>
-        <button onclick="setTheme('rose-gold')">Rose Gold</button>
-        <button onclick="setTheme('lavender')">Lavender</button>
-    </section>
-    <section>
-        <h2>Math Questions</h2>
-        <div id="questions-container">
-            <!-- Math questions will be loaded here dynamically -->
-        </div>
-    </section>
-    <footer>
-        <p>&copy; 2026 Calculator Learning Platform. All rights reserved.</p>
-    </footer>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
     <script>
-        // Function to set theme
-        function setTheme(theme) {
-            document.body.className = `${theme}-theme`;
-        }
-        // Load questions from Firebase or any defined source
-        // Initialize user authentication and leaderboard here
+        // TODO: Initialize Firebase
+        const firebaseConfig = {
+            // Your firebase configuration
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        // Initialize Firestore and Auth
     </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculator Learning Platform</h1>
+            <div id="theme-switcher">
+                <button class="theme-button">Light</button>
+                <button class="theme-button">Dark</button>
+                <button class="theme-button">Ocean</button>
+                <button class="theme-button">Forest</button>
+                <button class="theme-button">Sunset</button>
+                <button class="theme-button">Purple</button>
+                <button class="theme-button">Cyberpunk</button>
+                <button class="theme-button">Mint</button>
+                <button class="theme-button">Rose Gold</button>
+                <button class="theme-button">Lavender</button>
+            </div>
+        </header>
+        <main>
+            <section id="quiz">
+                <h2>Math Questions</h2>
+                <div id="questions"></div>
+                <button id="submit">Submit</button>
+            </section>
+            <section id="leaderboard">
+                <h2>Leaderboard</h2>
+                <div id="scores"></div>
+            </section>
+            <section id="achievements">
+                <h2>Achievements</h2>
+                <div id="badges"></div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
